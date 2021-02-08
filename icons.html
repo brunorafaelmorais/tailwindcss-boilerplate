@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.css" integrity="sha512-DIW4FkYTOxjCqRt7oS9BFO+nVOwDL4bzukDyDtMO7crjUZhwpyrWBFroq+IqRe6VnJkTpRAS6nhDvf0w+wHmxg==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="dist/css/main.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous"></script>
+
+  <title>Icon | Tailwind CSS Boilerplate</title>
+</head>
+<body>
+  <div class="p-2">
+    <ul class="grid gap-2 grid-cols-3 md:grid-cols-9 lg:grid-cols-12 text-center text-xs text-gray-900 leading-4" id="icons-container"></ul>
+  </div>
+
+  <script src="dist/js/main.js"></script>
+  <script>
+    const iconsContainer = document.getElementById('icons-container')
+    const svgSymbolsEl = document.querySelectorAll('svg > symbol')
+
+    const svgIds = [].map.call(svgSymbolsEl, symbol => symbol.id)
+
+    function htmlCardIcon(iconId) {
+      return `
+        <li class="group">
+          <div class="relative flex items-center justify-center mb-3 h-24 rounded-lg border border-gray-200">
+            <svg class="w-6 h-6 fill-current"><use xlink:href="#${iconId}"/></svg>
+            <div onclick="copyIcon('${iconId}')" role="button" class="absolute transition opacity-0 group-hover:opacity-100 inset-1 rounded-lg bg-gray-100 flex items-center justify-center cursor-pointer">
+              Copy Icon
+            </div>
+          </div>
+          <h3>${iconId}</h3>
+        </li>
+      `
+    }
+
+    iconsContainer.innerHTML = svgIds.map(htmlCardIcon).join('\n')
+
+    function showToastSuccessCopy() {
+      iziToast.show({
+        title: 'Success!',
+        message: 'Icon copied to clipboard.',
+        color: 'green',
+        timeout: 2000,
+        position: 'topRight'
+      })
+    }
+
+    async function clipboardWriteText(text) {
+      try {
+        await navigator.clipboard.writeText(text)
+        showToastSuccessCopy()
+      } catch (err) {
+        console.log('Failed to write clipboard contents: ', err)
+      }
+    }
+
+    async function copyIcon(iconId) {
+      const { state } = await navigator.permissions.query({ name: 'clipboard-write' })
+
+      const svg = `<svg><use xlink:href="#${iconId}" /></svg>`
+
+      if (state === 'granted' || state === 'prompt') {
+        clipboardWriteText(svg)
+      }
+    }
+  </script>
+</body>
+</html>
